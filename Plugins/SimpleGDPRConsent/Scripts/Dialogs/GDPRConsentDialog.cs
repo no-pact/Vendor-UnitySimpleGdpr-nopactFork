@@ -1,4 +1,5 @@
-﻿using SimpleGDPRConsent;
+﻿using System;
+using SimpleGDPRConsent;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,8 +13,10 @@ public class GDPRConsentDialog : IGDPRDialog
 		public readonly bool initialConsentValue;
 		public readonly string buttonLabel;
 		public readonly SimpleGDPR.ButtonClickDelegate onButtonClicked;
+		public readonly Action<bool> onToggleStateChanged;
 
-		public Section( string description, string title, string identifier, bool initialConsentValue, string buttonLabel, SimpleGDPR.ButtonClickDelegate onButtonClicked )
+		public Section( string description, string title, string identifier, bool initialConsentValue, string buttonLabel,
+			SimpleGDPR.ButtonClickDelegate onButtonClicked, Action<bool> onToggleStateChanged)
 		{
 			this.description = description;
 			this.title = title;
@@ -21,6 +24,7 @@ public class GDPRConsentDialog : IGDPRDialog
 			this.initialConsentValue = initialConsentValue;
 			this.buttonLabel = buttonLabel;
 			this.onButtonClicked = onButtonClicked;
+			this.onToggleStateChanged = onToggleStateChanged;
 		}
 	}
 
@@ -39,33 +43,45 @@ public class GDPRConsentDialog : IGDPRDialog
 		return this;
 	}
 
-	public GDPRConsentDialog AddSectionWithToggle( string identifier, string title, string description = null, bool initialConsentValue = true )
+	public GDPRConsentDialog AddSectionWithToggle(Action<bool> onToggleStateChanged, string identifier, string title, string description = null, bool initialConsentValue = true)
 	{
 		if( string.IsNullOrEmpty( identifier ) )
 		{
-			Debug.LogError( "Error: 'GDPR.identifier' was empty!" );
+			if (SimpleGDPR.IsDebugging)
+			{
+				Debug.LogError( "Error: 'GDPR.identifier' was empty!" );
+			}
+			
 			return this;
 		}
 
-		return AddSection( new Section( description, title, identifier, initialConsentValue, null, null ) );
+		return AddSection(new Section(description, title, identifier, initialConsentValue, null, null, onToggleStateChanged) );
 	}
 
 	public GDPRConsentDialog AddSectionWithButton( SimpleGDPR.ButtonClickDelegate onButtonClicked, string title, string description = null, string buttonLabel = null )
 	{
 		if( onButtonClicked == null )
 		{
-			Debug.LogError( "Error: 'GDPR.onButtonClicked' was empty!" );
+			if (SimpleGDPR.IsDebugging)
+			{
+				Debug.LogError( "Error: 'GDPR.onButtonClicked' was empty!" );	
+			}
+			
 			return this;
 		}
 
-		return AddSection( new Section( description, title, null, true, buttonLabel, onButtonClicked ) );
+		return AddSection(new Section(description, title, null, true, buttonLabel, onButtonClicked, null));
 	}
 
 	public GDPRConsentDialog AddPrivacyPolicy( string link )
 	{
 		if( string.IsNullOrEmpty( link ) )
 		{
-			Debug.LogError( "Error: 'GDPR.link' was empty!" );
+			if (SimpleGDPR.IsDebugging)
+			{
+				Debug.LogError( "Error: 'GDPR.link' was empty!" );		
+			}
+			
 			return this;
 		}
 
@@ -82,7 +98,11 @@ public class GDPRConsentDialog : IGDPRDialog
 	{
 		if( links == null || links.Length == 0 )
 		{
-			Debug.LogError( "Error: 'GDPR.links' was empty!" );
+			if (SimpleGDPR.IsDebugging)
+			{
+				Debug.LogError( "Error: 'GDPR.links' was empty!" );		
+			}
+			
 			return this;
 		}
 

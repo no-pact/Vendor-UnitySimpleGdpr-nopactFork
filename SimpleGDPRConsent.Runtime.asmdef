@@ -1,0 +1,14 @@
+{
+    "name": "SimpleGDPRConsent.Runtime",
+    "rootNamespace": "yasinkula.SimpleGdpr",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

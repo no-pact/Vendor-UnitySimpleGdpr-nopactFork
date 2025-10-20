@@ -1,6 +1,0 @@
-﻿{
-    "name": "SimpleGDPRConsent.Runtime",
-    "references": [
-        "Unity.InputSystem"
-    ]
-}

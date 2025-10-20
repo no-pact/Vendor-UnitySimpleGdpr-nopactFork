@@ -30,6 +30,7 @@ namespace SimpleGDPRConsent
 		private void Awake()
 		{
 			button.onClick.AddListener( OnButtonClicked );
+			toggleHolder.AddListener(OnToggleStateChanged);
 		}
 
 		public void Initialize( GDPRConsentDialog.Section section )
@@ -80,6 +81,11 @@ namespace SimpleGDPRConsent
 		{
 			if( section.onButtonClicked != null )
 				section.onButtonClicked();
+		}
+
+		private void OnToggleStateChanged(bool isEnabled)
+		{
+			section.onToggleStateChanged?.Invoke(isEnabled);
 		}
 
 		public void SaveConsent()

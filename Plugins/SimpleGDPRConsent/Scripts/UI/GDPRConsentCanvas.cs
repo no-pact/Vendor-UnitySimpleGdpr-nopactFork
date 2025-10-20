@@ -114,44 +114,6 @@ namespace SimpleGDPRConsent
 #endif
 		}
 
-		private void OnRectTransformDimensionsChange()
-		{
-			dimensionsChangeCountdown = 2; // Wait for 2 Update cycles, UI system will rebuild the layout during this time
-
-			Vector2 size = ( (RectTransform) transform ).rect.size;
-#if UNITY_EDITOR || ( !UNITY_ANDROID && !UNITY_IOS )
-			float dialogMaxWidth = size.x - dialogPadding.x;
-			float dialogTargetWidth = size.y - dialogPadding.y; // Make square dialog window if possible
-			dialog.sizeDelta = new Vector2( dialogTargetWidth < dialogMaxWidth ? dialogTargetWidth : dialogMaxWidth, dialog.sizeDelta.y );
-#else
-			// On mobile platforms, the dialog should be as wide as possible since the screen is too small
-			float dialogTargetPaddingX = size.x < size.y ? dialogPadding.x : dialogPadding.y; // Swapping padding values on landscape orientation
-			dialog.sizeDelta = new Vector2( size.x - dialogTargetPaddingX, dialog.sizeDelta.y );
-#endif
-		}
-
-		private void Update()
-		{
-			if( dimensionsChangeCountdown > 0 && --dimensionsChangeCountdown == 0 )
-			{
-				Vector2 size = ( (RectTransform) transform ).rect.size;
-#if UNITY_EDITOR || ( !UNITY_ANDROID && !UNITY_IOS )
-				float dialogMaxHeight = size.y - dialogPadding.y;
-#else
-				float dialogTargetPaddingY = size.x < size.y ? dialogPadding.y : dialogPadding.x; // Swapping padding values on landscape orientation
-				float dialogMaxHeight = size.y - dialogTargetPaddingY;
-#endif
-				float dialogTargetHeight = scrollView.content.rect.height + contentPaddingY;
-				dialog.sizeDelta = new Vector2( dialog.sizeDelta.x, dialogTargetHeight < dialogMaxHeight ? dialogTargetHeight : dialogMaxHeight );
-
-				if( dialogCanvasGroup.alpha < 1f )
-					dialogCanvasGroup.alpha = 1f;
-
-				// To prevent the scrollbar from overflowing when screen orientation changes
-				scrollView.OnScroll( new PointerEventData( EventSystem.current ) );
-			}
-		}
-
 		public static SimpleGDPR.ConsentState GetTermsOfServiceState()
 		{
 			return (SimpleGDPR.ConsentState) PlayerPrefs.GetInt( "GDPR_Terms", (int) SimpleGDPR.ConsentState.Unknown );
@@ -170,6 +132,11 @@ namespace SimpleGDPRConsent
 		public static void SetConsentState( string identifier, SimpleGDPR.ConsentState value )
 		{
 			PlayerPrefs.SetInt( "GDPR_" + identifier, (int) value );
+		}
+
+		public static bool HasConsentStateBeenSet(string identifier)
+		{
+			return PlayerPrefs.HasKey("GDPR_" + identifier);
 		}
 
 		public void ShowTermsOfServiceDialog( string termsOfServiceLink, string privacyPolicyLink, SimpleGDPR.DialogClosedDelegate onDialogClosed )
@@ -246,6 +213,11 @@ namespace SimpleGDPRConsent
 			OnDialogShown( onDialogClosed );
 		}
 
+		public void ToggleCloseButtonInteractivity(bool isEnabled)
+		{
+			closeButton.interactable = isEnabled;
+		}
+		
 		private void OnAcceptTermsButtonClicked()
 		{
 			SetTermsOfServiceState( SimpleGDPR.ConsentState.Yes );
@@ -263,11 +235,7 @@ namespace SimpleGDPRConsent
 		private void OnDialogShown( SimpleGDPR.DialogClosedDelegate onDialogClosed )
 		{
 			this.onDialogClosed = onDialogClosed;
-
 			scrollView.verticalNormalizedPosition = 1f;
-			dialogCanvasGroup.alpha = 0f; // To hide the annoying size flicker glitch
-
-			OnRectTransformDimensionsChange();
 			gameObject.SetActive( true );
 		}
 

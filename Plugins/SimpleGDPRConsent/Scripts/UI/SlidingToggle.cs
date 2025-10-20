@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -20,6 +22,7 @@ namespace SimpleGDPRConsent
 		private Sprite backgroundOff;
 #pragma warning restore 0649
 
+		private List<Action<bool>> listenerList = new List<Action<bool>>();
 		private bool m_value = true;
 		public bool Value
 		{
@@ -37,6 +40,17 @@ namespace SimpleGDPRConsent
 		public void OnPointerClick( PointerEventData eventData )
 		{
 			Value = !Value;
+
+			foreach (var listener in listenerList)
+			{
+				listener.Invoke(Value);
+			}
+		}
+		
+		public void AddListener(Action<bool> onToggleStateChanged)
+		{
+			listenerList.Add(onToggleStateChanged);
+			onToggleStateChanged.Invoke(Value);
 		}
 
 		private void UpdateHandle()
