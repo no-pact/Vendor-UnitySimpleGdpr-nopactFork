@@ -1,7 +1,10 @@
 {
     "name": "SimpleGDPRConsent.Runtime",
     "rootNamespace": "yasinkula.SimpleGdpr",
-    "references": [],
+    "references": [
+        "com.nopact.packages.privacy.gdprbridge",
+        "Unity.Advertisement.IosSupport"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
